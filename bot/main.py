@@ -1,99 +1,130 @@
+def input_error(func):
+    def func_wrapper(*args):
+        try:
+            return func(*args)
+
+        except IndexError:
+            return 'Wrong input. Try agane.'
+
+        except ValueError:
+            return 'Wrong input. Try agane.'
+
+        except KeyError:
+            return 'Wrong input. Try agane.'
+
+    return func_wrapper
+
+
 def main():
     stop = ('.', 'good bye', 'close', 'exit', 'break')
 
-    work = ('hello', 'add', 'change', 'phone', 'show all')
+    work = ('help', 'hello', 'add', 'change', 'phone', 'show all')
+
+    print('', 'Please, enter comand:',
+          '1. Hello!',
+          '2. Help',
+          '3. Add Name phone_number',
+          '4. Change Name old_phone_number new_phone_number',
+          '5. Phone Name',
+          '6. Show all',
+          sep='\n'
+          )
 
     while True:
-        string = input().lower()
-        print(string)
+
+        string = input('\nPlease, enter comand\nHelp for promt\n>>>').lower()
         answer = None
         if string.startswith(stop):
             print('Good bye!')
             break
         elif string.startswith(work):
-            print(f'working: {string}')
             answer = handler(string)
             print(answer)
         else:
             print('Wrong input. Try agane.')
 
 
-contacts = {'Oleg': ['380674020405',],
-            'Olena': ['+380675096294',],
-            'Oleksij': ['063-455-62-72',]
-            }
-            
+contacts = {}
+
+
 def handler(string):
     work_list = string.split()
-    print(work_list)
-#    contacts = dict()
     if string.startswith('hello'):
         return 'How can I help you?'
 
+    elif string.startswith('help'):
+        return ('\nPlease, enter comand:\n1. Hello!\n2. Help\n' +
+                '3. Add Name phone_number\n' +
+                '4. Change Name old_phone_number new_phone_number\n' +
+                '5. Phone Name\n6. Show all'
+                )
+
     elif string.startswith('add'):
         return handler_add(string)
-        
 
     elif string.startswith('change'):
         return handler_change(string)
-        
+
     elif string.startswith('phone'):
         return handler_phone(string)
-        
 
     else:
-        return handler_show_all(string)
+        return handler_show_all()
 
-        
 
+@input_error
 def handler_add(string):
     work_list = string.split()
-    try:
-        name = work_list[1]
-        number_phone = work_list[2]
-    except:
-        print('add')
-    
+    name = work_list[1]
+    number_phone = work_list[2]
+    if name.capitalize() in contacts:
+        contacts[name.capitalize()].append(number_phone)
+        return 'This name already exists! Number successfully added.'
     else:
-        if name.capitalize() in contacts:
-                contacts[name.capitalize()].append(number_phone)
-                return 'This name already exists! Number successfully added.'
-        else:
-            contacts[name.capitalize()] = []
-            contacts[name.capitalize()].append(number_phone)
-            return 'Contact successfully added.'
+        contacts[name.capitalize()] = []
+        contacts[name.capitalize()].append(number_phone)
+        return 'Contact successfully added.'
 
+
+@input_error
 def handler_change(string):
     work_list = string.split()
-    try:
-        name = work_list[1]
-        number_phone_old = work_list[2]
-        number_phone_new = work_list[3]
-
-    except:
-        print('change')
-
+    name = work_list[1]
+    number_phone_old = work_list[2]
+    number_phone_new = work_list[3]
+    if name.capitalize() in contacts:
+        if number_phone_old in contacts[name.capitalize()]:
+            contacts[name.capitalize()].remove(number_phone_old)
+            contacts[name.capitalize()].append(number_phone_new)
+        else:
+            return 'This number ' + number_phone_old + ' not exist.\n Try again.'
     else:
-        if work_list[1].capitalize() in contacts:
-            if work_list[2] in contacts[work_list[1].capitalize()]:
-                contacts[name.capitalize()].remove(number_phone_old)
-                contacts[name.capitalize()].append(number_phone_new)
-        return 'Contact successfully changed.'
+        return 'This Name ' + name.capitalize() + ' not exist.\n Try again.'
+    return 'Contact successfully changed.'
 
 
+@input_error
 def handler_phone(string):
     work_list = string.split()
-    try:
-        name = work_list[1]
-
-    except:
-        print('phone')
-
+    name = work_list[1]
+    str_return = name.capitalize()
+    if name.capitalize() in contacts:
+        for number in contacts[name.capitalize()]:
+            str_return = str_return + ' ' + number
+        return str_return
     else:
-        return name.capitalize() + ' ' + f'{contacts[name.capitalize()]}'
-
-def handler_show_all(string):
-    return contacts
+        return 'This Name ' + name.capitalize() + ' not exist.\nTry again.'
 
 
-main()
+def handler_show_all():
+    str_return = ''
+    for name in contacts:
+        str_return = str_return + name + ': '
+        for number in contacts[name]:
+            str_return = str_return + number + '| '
+        str_return = str_return + '\n'
+    return str_return
+
+
+if __name__ == "__main__":
+    main()
